@@ -1,0 +1,9 @@
+#GCP: add a new firewall rule
+https://docs.bitnami.com/google/faq/administration/use-firewall/
+#NIFI: flow.xml.gz migration
+https://docs.cloudera.com/cfm/2.0.1/hdf-migration/topics/cfm-migrate-flow-file.html
+#Backup nifi config
+sudo /opt/nifi/nifi-current/bin/nifi.sh stop
+download "/opt/nifi/nifi-current/conf/flow.xml.gz"
+sudo /opt/nifi/nifi-current/bin/nifi.sh start
+sudo /opt/nifi/nifi-current/bin/nifi.sh status
