@@ -13,10 +13,7 @@ print('consumer init is done')
 
 def consume_messages():
     while True:
-        print('start poll')
         message_batch = consumer.poll()
-        print('poll')
-
         for partition_batch in message_batch.values():
             for message in partition_batch:
                 # do processing of message
