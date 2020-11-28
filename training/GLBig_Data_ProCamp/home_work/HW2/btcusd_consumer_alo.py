@@ -8,6 +8,7 @@ import sys
 logger = logging.getLogger('kafka')
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.INFO)
 
 consumer = KafkaConsumer(
     'gcp.orders.fct.btcusd.0',
