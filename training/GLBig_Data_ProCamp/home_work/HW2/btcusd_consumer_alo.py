@@ -4,7 +4,6 @@
 #   After it to install kafka-python module only.
 # to install python modules on dataproc node:
 #   - sudo /opt/conda/default/bin/python -m pip install kafka-python
-#   - sudo /opt/conda/default/bin/python -m pip install logging
 
 from kafka import KafkaConsumer
 import logging
@@ -13,6 +12,8 @@ import argparse
 
 parser = argparse.ArgumentParser('Kafka "at least once" consumer')
 parser.add_argument('-v', '--verbose', action='store_true', default=False,help='Enable debug output')
+parser.add_argument('-r', '--remote_bootstrap', action='store_true', default=False,
+                    help='remote kafka broker (to use with vpn), if not set, will be used localhost')
 args = parser.parse_args()
 
 logger = logging.getLogger('kafka')
@@ -26,11 +27,17 @@ if args.verbose:
 else:
     logger.setLevel(logging.INFO)
 
+if args.remote_bootstrap:
+    logger.info('******* Set remote kafka broker')
+    lv_bootstrap_servers = 'procamp-cluster-m.us-east1-b.c.bigdata-procamp-1add8fad.internal'
+else:
+    logger.info('******* Set local kafka broker')
+    lv_bootstrap_servers = 'localhost:9092'
+
 consumer = KafkaConsumer(
     'gcp.orders.fct.btcusd.0',
-    #bootstrap_servers=['localhost:9092'],
-    bootstrap_servers=['10.142.0.5:9092'],
-group_id='group-1',
+    bootstrap_servers=[lv_bootstrap_servers],
+    group_id='group-1',
     enable_auto_commit=False
 )
 logger.info('******* consumer init is done')
