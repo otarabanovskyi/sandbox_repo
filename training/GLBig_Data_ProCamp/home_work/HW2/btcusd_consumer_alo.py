@@ -9,6 +9,8 @@ from kafka import KafkaConsumer
 import logging
 import sys
 import argparse
+import json
+import pandas as pd
 
 parser = argparse.ArgumentParser('Kafka "at least once" consumer')
 parser.add_argument('-v', '--verbose', action='store_true', default=False,help='Enable debug output')
@@ -50,11 +52,13 @@ def consume_messages():
     while True:
         logger.debug('******* poll start')
         message_batch = consumer.poll()
-        for partition_batch in message_batch.values():
+        '''for partition_batch in message_batch.values():
             for message in partition_batch:
                 # do processing of message
-                print(message.value.decode('utf-8'))
-        logger.debug('******* poll completed')
+                print(message.value.decode('utf-8'))'''
+        print(message_batch.values())
+        print('************ message_batch:' + str(len(partition_batch)))
+        # logger.debug('******* poll completed: ' || message_batch.values())
 
         # commits the latest offsets returned by poll
         consumer.commit()
