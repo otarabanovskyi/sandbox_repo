@@ -1,5 +1,7 @@
 #GCP: add a new firewall rule
 https://docs.bitnami.com/google/faq/administration/use-firewall/
+#Open VPN installation on GCP
+https://www.getloki.com/guides/openvpn/how-to-setup-an-openvpn-server-on-google-cloud-platform/
 #NIFI: flow.xml.gz migration
 https://docs.cloudera.com/cfm/2.0.1/hdf-migration/topics/cfm-migrate-flow-file.html
 #Backup nifi config

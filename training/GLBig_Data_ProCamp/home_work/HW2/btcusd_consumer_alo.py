@@ -13,7 +13,7 @@ import argparse
 parser = argparse.ArgumentParser('Kafka "at least once" consumer')
 parser.add_argument('-v', '--verbose', action='store_true', default=False,help='Enable debug output')
 parser.add_argument('-r', '--remote_bootstrap', action='store_true', default=False,
-                    help='remote kafka broker (to use with vpn), if not set, will be used localhost')
+                    help='remote kafka broker (to use with VPN), if not set, will be used localhost')
 args = parser.parse_args()
 
 logger = logging.getLogger('kafka')
@@ -29,6 +29,9 @@ else:
 
 if args.remote_bootstrap:
     logger.info('******* Set remote kafka broker')
+    # Should be set master node internal hostname in format <host name>.<region>.<project id>.internal
+    # open vpn server should use configuration:
+    #   sandbox_repo\training\GLBig_Data_ProCamp\infra\vpn\openvpn-configuration.sh
     lv_bootstrap_servers = 'procamp-cluster-m.us-east1-b.c.bigdata-procamp-1add8fad.internal'
 else:
     logger.info('******* Set local kafka broker')
