@@ -28,8 +28,9 @@ else:
 
 consumer = KafkaConsumer(
     'gcp.orders.fct.btcusd.0',
-    bootstrap_servers=['localhost:9092'],
-    group_id='group-1',
+    #bootstrap_servers=['localhost:9092'],
+    bootstrap_servers=['10.142.0.5:9092'],
+group_id='group-1',
     enable_auto_commit=False
 )
 logger.info('******* consumer init is done')
