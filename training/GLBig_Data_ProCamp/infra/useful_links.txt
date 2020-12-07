@@ -4,6 +4,14 @@ https://docs.bitnami.com/google/faq/administration/use-firewall/
 https://www.getloki.com/guides/openvpn/how-to-setup-an-openvpn-server-on-google-cloud-platform/
 #NIFI: flow.xml.gz migration
 https://docs.cloudera.com/cfm/2.0.1/hdf-migration/topics/cfm-migrate-flow-file.html
+#Python module confluent-kafka whl
+https://pypi.org/project/confluent-kafka/1.4.1/#files
+
+
+#visual c++ tools downloading to install confluent-kafka python module
+https://social.msdn.microsoft.com/Forums/office/en-US/13f2dc59-23e9-459d-b7e6-2a77826f9b5a/standalone-install-of-visual-c-build-tools?forum=vssetup
+https://visualstudio.microsoft.com/d0d0e24d-45a8-4ab8-8738-689561d1de02
+call "visualcppbuildtools_full.exe /layout" for downloading
 #Backup nifi config
 sudo /opt/nifi/nifi-current/bin/nifi.sh stop
 download "/opt/nifi/nifi-current/conf/flow.xml.gz"

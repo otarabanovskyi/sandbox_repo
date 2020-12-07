@@ -9,8 +9,10 @@ from kafka import KafkaConsumer
 import logging
 import sys
 import argparse
-import json
 import pandas as pd
+from kafka import TopicPartition
+import json
+from json import loads
 
 parser = argparse.ArgumentParser('Kafka "at least once" consumer')
 parser.add_argument('-v', '--verbose', action='store_true', default=False,help='Enable debug output')
@@ -52,13 +54,22 @@ def consume_messages():
     while True:
         logger.debug('******* poll start')
         message_batch = consumer.poll()
-        '''for partition_batch in message_batch.values():
+        df_cur_batch = pd.DataFrame()
+        for partition_batch in message_batch.values():
             for message in partition_batch:
                 # do processing of message
-                print(message.value.decode('utf-8'))'''
-        print(message_batch.values())
-        print('************ message_batch:' + str(len(partition_batch)))
-        # logger.debug('******* poll completed: ' || message_batch.values())
+                if message is None: continue
+                else:
+                    lv_message = (message.value.decode('utf-8').replace('{"data":', '').replace('},', ','))
+                    logger.debug('*** lv_message: <' + lv_message + '>, ' + str(len(lv_message)) + '; Row message: <' + str(message.value) + '>; type: ' + str(type(message.value)))
+                    print(lv_message)
+                #if lv_message != b'\x00\x00\x00\x00\x00\x00':
+                #    lv_message_json = json.loads(lv_message)
+                #    logger.info('*** lv_message_json: <' + lv_message + '>')
+                #logging.info('*** Message json: ' + lv_message_json)
+                #df_cur_batch = df_cur_batch.append(pd.json_normalize(lv_message))
+
+        logger.debug('******* pool completed')
 
         # commits the latest offsets returned by poll
         consumer.commit()
