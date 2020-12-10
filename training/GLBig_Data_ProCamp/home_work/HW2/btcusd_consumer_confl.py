@@ -8,6 +8,8 @@ from confluent_kafka import Consumer, KafkaError
 import logging
 import sys
 import argparse
+import pandas as pd
+import json
 
 parser = argparse.ArgumentParser('Kafka "at least once" consumer')
 parser.add_argument('-v', '--verbose', action='store_true', default=False,help='Enable debug output')
@@ -23,6 +25,7 @@ logger.addHandler(handler)
 
 if args.verbose:
     logger.setLevel(logging.DEBUG)
+    logger.info('******* Debug output is enabled')
 else:
     logger.setLevel(logging.INFO)
 
@@ -45,10 +48,20 @@ settings = {
     # 'default.topic.config': {'auto.offset.reset': 'smallest'}
     'default.topic.config': {'auto.offset.reset': 'latest'}
 }
-
 c = Consumer(settings)
-
 c.subscribe(['gcp.orders.fct.btcusd.0'])
+
+full_df = pd.DataFrame({'data.id': pd.Series([], dtype='int'),
+                        'data.id_str': pd.Series([], dtype='str'),
+                        'data.order_type': pd.Series([], dtype='int'),
+                        'data.datetime': pd.Series([], dtype='str'),
+                        'data.microtimestamp': pd.Series([], dtype='str'),
+                        'data.amount': pd.Series([], dtype='float'),
+                        'data.amount_str': pd.Series([], dtype='str'),
+                        'data.price': pd.Series([], dtype='float'),
+                        'data.price_str': pd.Series([], dtype='str'),
+                        'channel': pd.Series([], dtype='str'),
+                        'event': pd.Series([], dtype='str')})
 
 try:
     while True:
@@ -56,16 +69,23 @@ try:
         if msg is None:
             continue
         elif not msg.error():
-            print('Received message: {0}'.format(msg.value()))
+            logger.debug('Received message: {0}'.format(msg.value()))
+            mess_df = pd.json_normalize(json.loads(msg.value()))
+            full_df = pd.concat([full_df, mess_df])
+            full_df = full_df.sort_values(['data.price'], ascending=[False])
+            full_df = full_df.head(10)
+            print('\n****************** top 10 bitcoin transactions based on price field (descending):')
+            #print(full_df[['event', 'channel', 'data.id', 'data.price']])
+            print(full_df[['event', 'data.id_str', 'data.amount_str', 'data.price_str']], '\n')
             c.commit()
         elif msg.error().code() == KafkaError._PARTITION_EOF:
-            print('End of partition reached {0}/{1}'
-                  .format(msg.topic(), msg.partition()))
+            logger.debug('End of partition reached {0}/{1}'.format(msg.topic(), msg.partition()))
         else:
-            print('Error occured: {0}'.format(msg.error().str()))
+            logger.error('Error occured: {0}'.format(msg.error().str()))
 
 except KeyboardInterrupt:
     pass
 
 finally:
     c.close()
+
