@@ -4,6 +4,10 @@
 #   After it to install kafka-python module only.
 # to install python modules on dataproc node:
 #   - sudo /opt/conda/default/bin/python -m pip install kafka-python
+# module "pandas" should be reinstalled to update version
+#   - sudo /opt/conda/default/bin/python -m pip uninstall pandas
+#   - sudo /opt/conda/default/bin/python -m pip install pandas
+
 
 from kafka import KafkaConsumer
 import logging

@@ -2,6 +2,10 @@
 # confluent-kafka should be installed
 # to install python modules on dataproc node:
 #   - sudo /opt/conda/default/bin/python -m pip install confluent-kafka
+# module "pandas" should be reinstalled to update version
+#   - sudo /opt/conda/default/bin/python -m pip uninstall pandas
+#   - sudo /opt/conda/default/bin/python -m pip install pandas
+
 from confluent_kafka import Consumer, KafkaError
 import logging
 import sys

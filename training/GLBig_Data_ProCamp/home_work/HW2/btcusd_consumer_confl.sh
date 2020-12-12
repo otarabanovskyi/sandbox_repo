@@ -1,2 +1,2 @@
 #!/bin/sh
-python btcusd_consumer_alo.confl "$@"
+python btcusd_consumer_confl.py "$@"
