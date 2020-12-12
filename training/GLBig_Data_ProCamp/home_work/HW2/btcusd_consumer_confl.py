@@ -1,9 +1,7 @@
 # at least once
-# python-kafka should be installed
-# If kafka and kafka-python modules are installed,both should be uninstalled.
-#   After it to install kafka-python module only.
+# confluent-kafka should be installed
 # to install python modules on dataproc node:
-#   - sudo /opt/conda/default/bin/python -m pip install kafka-python
+#   - sudo /opt/conda/default/bin/python -m pip install confluent-kafka
 from confluent_kafka import Consumer, KafkaError
 import logging
 import sys
@@ -64,18 +62,20 @@ full_df = pd.DataFrame({'data.id': pd.Series([], dtype='int'),
                         'event': pd.Series([], dtype='str')})
 
 try:
+    cnt = 0
     while True:
         msg = c.poll(0.1)
         if msg is None:
             continue
         elif not msg.error():
             logger.debug('Received message: {0}'.format(msg.value()))
-            mess_df = pd.json_normalize(json.loads(msg.value()))
-            full_df = pd.concat([full_df, mess_df])
+            cnt = cnt + 1
+            msg_df = pd.json_normalize(json.loads(msg.value()))
+            full_df = pd.concat([full_df, msg_df])
             full_df = full_df.sort_values(['data.price'], ascending=[False])
             full_df = full_df.head(10)
-            print('\n****************** top 10 bitcoin transactions based on price field (descending):')
-            #print(full_df[['event', 'channel', 'data.id', 'data.price']])
+            print('\n****************** ' + str(cnt) + ' messages are processed. Top 10 bitcoin transactions based on '
+                                                       'price field (descending):')
             print(full_df[['event', 'data.id_str', 'data.amount_str', 'data.price_str']], '\n')
             c.commit()
         elif msg.error().code() == KafkaError._PARTITION_EOF:

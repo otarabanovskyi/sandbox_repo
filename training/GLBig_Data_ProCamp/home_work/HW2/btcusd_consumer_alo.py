@@ -10,9 +10,7 @@ import logging
 import sys
 import argparse
 import pandas as pd
-from kafka import TopicPartition
 import json
-from json import loads
 
 parser = argparse.ArgumentParser('Kafka "at least once" consumer')
 parser.add_argument('-v', '--verbose', action='store_true', default=False,help='Enable debug output')
@@ -49,28 +47,43 @@ consumer = KafkaConsumer(
 )
 logger.info('******* consumer init is done')
 
-
 def consume_messages():
+    full_df = pd.DataFrame({'data.id': pd.Series([], dtype='int'),
+                            'data.id_str': pd.Series([], dtype='str'),
+                            'data.order_type': pd.Series([], dtype='int'),
+                            'data.datetime': pd.Series([], dtype='str'),
+                            'data.microtimestamp': pd.Series([], dtype='str'),
+                            'data.amount': pd.Series([], dtype='float'),
+                            'data.amount_str': pd.Series([], dtype='str'),
+                            'data.price': pd.Series([], dtype='float'),
+                            'data.price_str': pd.Series([], dtype='str'),
+                            'channel': pd.Series([], dtype='str'),
+                            'event': pd.Series([], dtype='str')})
+    cnt = 0
+
     while True:
         logger.debug('******* poll start')
         message_batch = consumer.poll()
-        df_cur_batch = pd.DataFrame()
+        cur_batch_df = pd.DataFrame()
         for partition_batch in message_batch.values():
             for message in partition_batch:
                 # do processing of message
-                if message is None: continue
-                else:
-                    lv_message = (message.value.decode('utf-8').replace('{"data":', '').replace('},', ','))
-                    logger.debug('*** lv_message: <' + lv_message + '>, ' + str(len(lv_message)) + '; Row message: <' + str(message.value) + '>; type: ' + str(type(message.value)))
-                    print(lv_message)
-                #if lv_message != b'\x00\x00\x00\x00\x00\x00':
-                #    lv_message_json = json.loads(lv_message)
-                #    logger.info('*** lv_message_json: <' + lv_message + '>')
-                #logging.info('*** Message json: ' + lv_message_json)
-                #df_cur_batch = df_cur_batch.append(pd.json_normalize(lv_message))
-
-        logger.debug('******* pool completed')
-
+                logger.debug('Received message: ' + message.value.decode('utf-8'))
+                try:
+                    msg_df = pd.json_normalize(json.loads(message.value))
+                    cnt = cnt + 1
+                    cur_batch_df = pd.concat([cur_batch_df, msg_df])
+                except UnicodeDecodeError:
+                    logger.debug('Message unicode decode error: ' + str(message.value))
+                except Exception as e:
+                    logger.error("******* Error: ", sys.exc_info()[0])
+        logger.debug('******* Current batch\n' + str(cur_batch_df))
+        full_df = pd.concat([full_df, cur_batch_df])
+        full_df = full_df.sort_values(['data.price'], ascending=[False])
+        full_df = full_df.head(10)
+        print('\n****************** ' + str(cnt) + ' messages are processed. Top 10 bitcoin transactions based on '
+                                                   'price field (descending):')
+        print(full_df[['event', 'data.id_str', 'data.amount_str', 'data.price_str']], '\n')
         # commits the latest offsets returned by poll
         consumer.commit()
 
